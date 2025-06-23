@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bottom Navigation</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: #f5f5f5;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 93%;
+            position: relative;
+        }
+
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background: white;
+            position: absolute;
+            top: 0;
+            left: 0;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        iframe.active {
+            opacity: 1;
+            z-index: 2;
+        }
+
+        .bottom-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 75px;
+            background: white;
+            box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-top-left-radius: 20px;
+            border-top-right-radius: 20px;
+            z-index: 100;
+        }
+
+        .nav-container {
+            display: flex;
+            width: 100%;
+            max-width: 500px;
+            height: 100%;
+            position: relative;
+        }
+
+        .nav-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            position: relative;
+            z-index: 1;
+            transition: all 0.3s ease;
+        }
+
+        .nav-icon-container {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            margin-bottom: 3px;
+        }
+
+        .nav-icon {
+            font-size: 1.4rem;
+            transition: all 0.3s ease;
+            position: relative;
+            z-index: 3;
+            color: #777;
+        }
+
+        .nav-text {
+            font-size: 0.7rem;
+            font-weight: 500;
+            opacity: 0.7;
+            transition: all 0.3s ease;
+            position: relative;
+            z-index: 3;
+            color: #777;
+        }
+
+        .indicator {
+            position: absolute;
+            top: -6px;
+            left: 10%;
+            width: 15%;
+            height: 2px;
+            background: linear-gradient(45deg, #6a11cb, #2575fc);
+            border-radius: 5px;
+            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            z-index: 3;
+            transform: translateX(-50%);
+        }
+
+        .bubble {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            background: white;
+            border-radius: 50%;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            z-index: 1;
+            opacity: 0;
+            top: 8px;
+        }
+
+        .nav-item.active .bubble {
+            opacity: 1;
+            transform: translateY(-10px);
+        }
+
+        .nav-item.active .nav-icon {
+            transform: translateY(-10px);
+            color: #6a11cb;
+        }
+
+        .nav-item.active .nav-text {
+            opacity: 1;
+            transform: translateY(3px);
+            color: #6a11cb;
+            font-weight: 600;
+        }
+
+        /* Menu Icon Styles */
+        .grid-icon {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            grid-template-rows: repeat(2, 1fr);
+            width: 22px;
+            height: 22px;
+            position: relative;
+            z-index: 3;
+            transform: translateY(0);
+            transition: all 0.3s ease;
+        }
+
+        .nav-item.active .grid-icon {
+            transform: translateY(-10px);
+        }
+
+        .grid-box {
+            width: 9px;
+            height: 9px;
+            background: #777;
+            transition: all 0.3s ease;
+            position: relative;
+            z-index: 4;
+        }
+
+        .nav-item.active .grid-box {
+            background: #6a11cb;
+        }
+
+        /* Box positions */
+        .grid-box:nth-child(1) { top: 0; left: 0; transform-origin: center; }
+        .grid-box:nth-child(2) { top: 0; right: 0; }
+        .grid-box:nth-child(3) { bottom: 0; left: 0; }
+        .grid-box:nth-child(4) { bottom: 0; right: 0; }
+
+        /* Active state - top-left box rotates out */
+        .nav-item.active[data-url*="menu"] .grid-box:nth-child(1) {
+            transform: rotate(-45deg) translate(4px, -4px);
+        }
+        
+        /* When menu is not active, ensure the box returns to normal */
+        .nav-item:not(.active)[data-url*="menu"] .grid-box:nth-child(1) {
+            transform: rotate(0deg) translate(0, 0);
+        }
+    </style>
+</head>
+<body>
+    <div class="iframe-container" id="iframe-container">
+        <!-- Home will be inserted here by JavaScript -->
+    </div>
+
+    <div class="bottom-bar">
+        <div class="nav-container">
+            <div class="indicator"></div>
+            <div class="nav-item active" data-url="https://cactusinnovations.github.io/keypadlearnmanipulation/">
+                <div class="bubble"></div>
+                <div class="nav-icon-container">
+                    <i class="fas fa-home nav-icon"></i>
+                </div>
+                <span class="nav-text">Home</span>
+            </div>
+            <div class="nav-item" data-url="https://cactusinnovations.github.io/pngconverter/">
+                <div class="bubble"></div>
+                <div class="nav-icon-container">
+                    <i class="fas fa-compass nav-icon"></i>
+                </div>
+                <span class="nav-text">Explore</span>
+            </div>
+            <div class="nav-item" data-url="https://example.com/videos">
+                <div class="bubble"></div>
+                <div class="nav-icon-container">
+                    <i class="fas fa-play-circle nav-icon"></i>
+                </div>
+                <span class="nav-text">Videos</span>
+            </div>
+            <div class="nav-item" data-url="https://example.com/notes">
+                <div class="bubble"></div>
+                <div class="nav-icon-container">
+                    <i class="fas fa-sticky-note nav-icon"></i>
+                </div>
+                <span class="nav-text">Notes</span>
+            </div>
+            <div class="nav-item" data-url="https://example.com/menu">
+                <div class="bubble"></div>
+                <div class="nav-icon-container">
+                    <div class="grid-icon">
+                        <div class="grid-box"></div>
+                        <div class="grid-box"></div>
+                        <div class="grid-box"></div>
+                        <div class="grid-box"></div>
+                    </div>
+                </div>
+                <span class="nav-text">Menu</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const navItems = document.querySelectorAll('.nav-item');
+            const indicator = document.querySelector('.indicator');
+            const iframeContainer = document.getElementById('iframe-container');
+            
+            // Set default URLs (replace with your actual URLs)
+            const urls = {
+                home: 'https://cactusinnovations.github.io/keypadlearnmanipulation/',
+                explore: 'https://cactusinnovations.github.io/pngconverter/',
+                videos: 'https://example.com/videos',
+                notes: 'https://example.com/notes',
+                menu: 'https://example.com/menu'
+            };
+            
+            // Create and show Home iframe immediately
+            const homeIframe = document.createElement('iframe');
+            homeIframe.src = urls.home;
+            homeIframe.classList.add('active');
+            iframeContainer.appendChild(homeIframe);
+            
+            const iframes = {
+                [urls.home]: homeIframe
+            };
+            let currentActiveItem = document.querySelector('.nav-item.active');
+            
+            // Set click handlers
+            navItems.forEach((item, index) => {
+                const url = item.getAttribute('data-url');
+                
+                item.addEventListener('click', function() {
+                    // Don't reload if already active
+                    if (currentActiveItem === this) return;
+                    
+                    // Create iframe if it doesn't exist
+                    if (!iframes[url]) {
+                        const iframe = document.createElement('iframe');
+                        iframe.src = url;
+                        iframeContainer.appendChild(iframe);
+                        iframes[url] = iframe;
+                    }
+                    
+                    // Hide current iframe
+                    if (currentActiveItem) {
+                        const currentUrl = currentActiveItem.getAttribute('data-url');
+                        iframes[currentUrl].classList.remove('active');
+                        currentActiveItem.classList.remove('active');
+                    }
+                    
+                    // Show new iframe
+                    iframes[url].classList.add('active');
+                    
+                    // Update active item
+                    this.classList.add('active');
+                    currentActiveItem = this;
+                    
+                    // Move indicator
+                    const position = 10 + (index * 20);
+                    indicator.style.left = `${position}%`;
+                });
+            });
+        });
+    </script>
+</body>
+</html>
