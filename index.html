@@ -256,66 +256,64 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const navItems = document.querySelectorAll('.nav-item');
-            const indicator = document.querySelector('.indicator');
-            const iframeContainer = document.getElementById('iframe-container');
+    const navItems = document.querySelectorAll('.nav-item');
+    const indicator = document.querySelector('.indicator');
+    const iframeContainer = document.getElementById('iframe-container');
+    
+    // Default URLs
+    const urls = {
+        home: 'https://cactusinnovations.github.io/learnastrophysicshome/',
+        explore: 'https://cactusinnovations.github.io/learnastrophysicsexplore/',
+        videos: 'https://cactusinnovations.github.io/learnastrophysicsvideos/',
+        notes: 'https://cactusinnovations.github.io/learnastrophysicsnotes/',
+        menu: 'https://cactusinnovations.github.io/learnastrophysicsmenu/'
+    };
+    
+    // Create and show Home iframe immediately
+    const homeIframe = document.createElement('iframe');
+    homeIframe.src = urls.home;
+    homeIframe.classList.add('active');
+    iframeContainer.appendChild(homeIframe);
+    
+    const iframes = {
+        [urls.home]: homeIframe
+    };
+    let currentActiveItem = document.querySelector('.nav-item.active');
+    
+    // Set click handlers
+    navItems.forEach((item, index) => {
+        const url = item.getAttribute('data-url');
+        
+        item.addEventListener('click', function() {
+            // If the iframe exists, force reload to the main URL
+            if (iframes[url]) {
+                iframes[url].src = url; // Reset to original URL
+            } else {
+                // Create iframe if it doesn't exist
+                const iframe = document.createElement('iframe');
+                iframe.src = url;
+                iframeContainer.appendChild(iframe);
+                iframes[url] = iframe;
+            }
             
-            // Set default URLs (replace with your actual URLs)
-            const urls = {
-                home: 'https://cactusinnovations.github.io/learnastrophysicshome/',
-                explore: 'https://cactusinnovations.github.io/learnastrophysicsexplore/',
-                videos: 'https://cactusinnovations.github.io/learnastrophysicsvideos/',
-                notes: 'https://cactusinnovations.github.io/learnastrophysicsnotes/',
-                menu: 'https://cactusinnovations.github.io/learnastrophysicsmenu/'
-            };
+            // Hide current iframe (if switching tabs)
+            if (currentActiveItem && currentActiveItem !== this) {
+                const currentUrl = currentActiveItem.getAttribute('data-url');
+                iframes[currentUrl].classList.remove('active');
+                currentActiveItem.classList.remove('active');
+            }
             
-            // Create and show Home iframe immediately
-            const homeIframe = document.createElement('iframe');
-            homeIframe.src = urls.home;
-            homeIframe.classList.add('active');
-            iframeContainer.appendChild(homeIframe);
+            // Show the clicked tab's iframe
+            iframes[url].classList.add('active');
+            this.classList.add('active');
+            currentActiveItem = this;
             
-            const iframes = {
-                [urls.home]: homeIframe
-            };
-            let currentActiveItem = document.querySelector('.nav-item.active');
-            
-            // Set click handlers
-            navItems.forEach((item, index) => {
-                const url = item.getAttribute('data-url');
-                
-                item.addEventListener('click', function() {
-                    // Don't reload if already active
-                    if (currentActiveItem === this) return;
-                    
-                    // Create iframe if it doesn't exist
-                    if (!iframes[url]) {
-                        const iframe = document.createElement('iframe');
-                        iframe.src = url;
-                        iframeContainer.appendChild(iframe);
-                        iframes[url] = iframe;
-                    }
-                    
-                    // Hide current iframe
-                    if (currentActiveItem) {
-                        const currentUrl = currentActiveItem.getAttribute('data-url');
-                        iframes[currentUrl].classList.remove('active');
-                        currentActiveItem.classList.remove('active');
-                    }
-                    
-                    // Show new iframe
-                    iframes[url].classList.add('active');
-                    
-                    // Update active item
-                    this.classList.add('active');
-                    currentActiveItem = this;
-                    
-                    // Move indicator
-                    const position = 10 + (index * 20);
-                    indicator.style.left = `${position}%`;
-                });
-            });
+            // Move the indicator
+            const position = 10 + (index * 20);
+            indicator.style.left = `${position}%`;
         });
+    });
+});
     </script>
 </body>
 </html>
