@@ -285,9 +285,9 @@
         const url = item.getAttribute('data-url');
         
         item.addEventListener('click', function() {
-            // If the iframe exists, force reload to the main URL
+            // Always reset to main URL when clicked (for all tabs)
             if (iframes[url]) {
-                iframes[url].src = url; // Reset to original URL
+                iframes[url].src = url; // Force reload
             } else {
                 // Create iframe if it doesn't exist
                 const iframe = document.createElement('iframe');
@@ -296,7 +296,7 @@
                 iframes[url] = iframe;
             }
             
-            // Hide current iframe (if switching tabs)
+            // Hide current iframe if switching tabs
             if (currentActiveItem && currentActiveItem !== this) {
                 const currentUrl = currentActiveItem.getAttribute('data-url');
                 iframes[currentUrl].classList.remove('active');
